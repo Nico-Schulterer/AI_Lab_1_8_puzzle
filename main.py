@@ -5,6 +5,7 @@ if __name__ == '__main__':
 
     n1 = nodeCreator.createShuffledNode()
     nodeCreator.printNode(n1)
+    nodeCreator.checkIfSolvable(n1)
     n1.h = nodeCreator.calculateManhatten(n1)
     print(n1.h)
 
