@@ -1,5 +1,4 @@
 import math
-
 import numpy as np
 
 
@@ -17,16 +16,18 @@ def createShuffledNode():
     np.random.shuffle(n1.puzzleField.flat)
     return n1
 
+# Counts the amount of inversion in the node
 def checkInversionCount(node):
     count = 0
-    empty = -1
+    empty = 0
+    arr = node.flatten()
 
-    for x in range(0, 9):
-        for y in range(x + 0, 9):
-            if node.puzzleField[y] != empty and node.puzzleField[x] != empty and node.puzzleField[x] > node.puzzleField[y]:
-                count += 1
+    for x in arr - 1:
+        if arr[x] > arr[x + 1] and arr[x] != empty:
+            count += 1
     return count
 
+# Checks if the node is solvable based on the amount of inversions
 def checkIfSolvable(node):
     count = checkInversionCount(node.puzzleField)
     if count % 2 == 0:
