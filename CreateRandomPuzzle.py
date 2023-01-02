@@ -1,5 +1,4 @@
 import math
-
 import numpy as np
 
 
@@ -18,6 +17,7 @@ def createShuffledNode():
     return n1
 
 
+# Returns the sum of all calculated hamming distances of each value on the field
 def calculateHamming(node):
     counter = 0
     heuristic = 0
@@ -29,6 +29,7 @@ def calculateHamming(node):
     return heuristic
 
 
+# Returns the sum of all calculated manhatten distances of each value on the field
 def calculateManhatten(node):
     heuristic = 0
     for x in range(3):
