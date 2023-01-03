@@ -94,6 +94,9 @@ def createChildFromParent(parentNode, xParent, yParent, xValue, yValue):
     # Increase tree depth cost
     node.g += 1
 
+    # Define parent node
+    node.parentNode = parentNode
+
     # Swap empty value in the puzzle field
     node.puzzleField[xParent][yParent] = node.puzzleField[xParent + xValue][yParent + yValue]
     node.puzzleField[xParent + xValue][yParent + yValue] = 0
