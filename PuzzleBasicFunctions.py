@@ -11,6 +11,7 @@ class Node:
     f = 0
     parentNode = 0
     heuristicApproach = 0  # 0 = hamming, 1 = manhatten
+    hasBeenVisited = 0  # 0 = no, 1 = yes
 
 
 # Counts the amount of inversion in the node
@@ -26,9 +27,21 @@ def checkInversionCount(node):
     return count
 
 
+def checkInversionCount2(node):
+    count = 0
+    arr = node.flatten()
+
+    for x in range(len(arr) - 1):
+        for i in range(x, len(arr)):
+            if arr[x] > arr[i] != 0:
+                count += 1
+    print(count)
+    return count
+
+
 # Checks if the node is solvable based on the amount of inversions
 def checkIfSolvable(node):
-    count = checkInversionCount(node.puzzleField)
+    count = checkInversionCount2(node.puzzleField)
     if count % 2 == 0:
         print("This node is solvable!")
         return 1
@@ -47,7 +60,7 @@ def calculateHamming(node):
                 heuristic += 1
             counter += 1
     node.h = heuristic
-    node.f = node.g + node.g
+    node.f = node.g + node.h
 
 
 # Calculates the heuristics h(n) of the manhatten distances of each value on the field and the overall cost f(n)
@@ -71,7 +84,7 @@ def createShuffledParentNode(heuristicApproach):
     # Create random 2d puzzle field
     randomPuzzle = np.arange(9)
     np.random.shuffle(randomPuzzle)
-    node.puzzleField = np.reshape(randomPuzzle, (3,3))
+    node.puzzleField = np.reshape(randomPuzzle, (3, 3))
 
     # Define approach of heuristics and retr
     node.heuristicApproach = heuristicApproach
@@ -89,10 +102,12 @@ def createShuffledParentNode(heuristicApproach):
 # Returns a new copy of an existing node and changes its puzzle field
 def createChildFromParent(parentNode, xParent, yParent, xValue, yValue):
     # Create a copy
-    node = copy.copy(parentNode)
+    node = Node()
+    node.puzzleField = copy.deepcopy(parentNode.puzzleField)
 
     # Increase tree depth cost
-    node.g += 1
+    node.g = copy.deepcopy(parentNode.g) + 1
+    node.heuristicApproach = copy.deepcopy(parentNode.heuristicApproach)
 
     # Define parent node
     node.parentNode = parentNode
@@ -113,6 +128,7 @@ def createChildFromParent(parentNode, xParent, yParent, xValue, yValue):
 
 # Returns an array of child nodes created from a single parent node
 def createChildNodes(parentNode):
+
     # Create array of child nodes
     childNodes = []
 
@@ -127,21 +143,24 @@ def createChildNodes(parentNode):
                 break
 
     # Find the neighbors of the empty value in the puzzle field and create new child nodes
-    if xAxis - 1 >= 0:  # left
-        childNodeLeft = createChildFromParent(parentNode, xAxis, yAxis, -1, 0)
-        childNodes.append(childNodeLeft)
-
-    if xAxis + 1 < 3:  # right
-        childNodeRight = createChildFromParent(parentNode, xAxis, yAxis, 1, 0)
-        childNodes.append(childNodeRight)
-
-    if yAxis - 1 >= 0:  # bottom
+    if yAxis - 1 >= 0:  # left
         childNodeBottom = createChildFromParent(parentNode, xAxis, yAxis, 0, -1)
         childNodes.append(childNodeBottom)
 
-    if yAxis + 1 < 3:  # top
+    if xAxis - 1 >= 0:  # top
+        childNodeLeft = createChildFromParent(parentNode, xAxis, yAxis, -1, 0)
+        childNodes.append(childNodeLeft)
+
+    if yAxis + 1 < 3:  # right
         childNodeTop = createChildFromParent(parentNode, xAxis, yAxis, 0, 1)
         childNodes.append(childNodeTop)
+
+    if xAxis + 1 < 3:  # bottom
+        childNodeRight = createChildFromParent(parentNode, xAxis, yAxis, 1, 0)
+        childNodes.append(childNodeRight)
+
+    # Make sure parent node cannot be visited anymore
+    parentNode.hasBeenVisited = 1
 
     # Return child nodes
     return childNodes
