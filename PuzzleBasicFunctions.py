@@ -178,3 +178,18 @@ def printNode(node):
             print("-------------")
 
     print("")
+
+
+def printAllNodes(endNode):
+    nodePath = [endNode]
+    currentNode = endNode
+
+    while currentNode.parentNode != 0:
+        currentNode = currentNode.parentNode
+        nodePath.append(currentNode)
+
+    nodePath.reverse()
+
+    for i in range(len(nodePath)):
+        print("Step: " + str(i + 1))
+        printNode(nodePath[i])

@@ -47,8 +47,9 @@ def solveSpecificPuzzle(startNode):
                 currentNode = node
                 cheapestNode = currentNode.f
 
-    print("Finished Puzzle: " + str(currentNode.g) + " | Iterations: " + str(index))
-    nodeCreator.printNode(currentNode)
+    # Print path of all nodes to solve the puzzle
+    print("Finished Puzzle: g-cost =" + str(currentNode.g) + " | Iterations: " + str(index))
+    nodeCreator.printAllNodes(currentNode)
 
 
 def testing():
@@ -68,15 +69,15 @@ def testing():
 
 if __name__ == '__main__':
     startNode = nodeCreator.Node()
-    startNode.puzzleField[0][0] = 3
-    startNode.puzzleField[0][1] = 1
-    startNode.puzzleField[0][2] = 5
-    startNode.puzzleField[1][0] = 6
-    startNode.puzzleField[1][1] = 7
-    startNode.puzzleField[1][2] = 0
-    startNode.puzzleField[2][0] = 8
-    startNode.puzzleField[2][1] = 2
-    startNode.puzzleField[2][2] = 4
+    startNode.puzzleField[0][0] = 1
+    startNode.puzzleField[0][1] = 2
+    startNode.puzzleField[0][2] = 0
+    startNode.puzzleField[1][0] = 3
+    startNode.puzzleField[1][1] = 4
+    startNode.puzzleField[1][2] = 5
+    startNode.puzzleField[2][0] = 6
+    startNode.puzzleField[2][1] = 7
+    startNode.puzzleField[2][2] = 8
 
     startNode.heuristicApproach = 1
     nodeCreator.calculateManhatten(startNode)
@@ -90,6 +91,6 @@ if __name__ == '__main__':
     # childNodes2 = nodeCreator.createChildNodes(childNodes[0])
     # childNodes3 = nodeCreator.createChildNodes(childNodes2[0])
 
-    # solveSpecificPuzzle(startNode)
-    solveRandomPuzzle()
+    solveSpecificPuzzle(startNode)
+    # solveRandomPuzzle()
 
