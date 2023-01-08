@@ -1,14 +1,13 @@
-import copy
-import sys
 import PuzzleBasicFunctions as nodeCreator
-from queue import PriorityQueue
+
 
 def solveRandomPuzzle():
+
     # Create a random start node
     startNode = nodeCreator.createShuffledParentNode(1)
-    nodeCreator.printNode(startNode)
 
-    solveSpecificPuzzle(startNode)
+    # Solve node
+    return solveSpecificPuzzle(startNode)
 
 
 def solveSpecificPuzzle(startNode):
@@ -17,83 +16,73 @@ def solveSpecificPuzzle(startNode):
     if nodeCreator.checkIfSolvable(startNode) == 0:
         return
 
-    # Create an array for all created nodes and add the startNode
+    # Create a priority queue for all created nodes
     allNodes = nodeCreator.NodePriorityQueue()
 
+    # Create array for all visited nodes
+    visitedNodes = []
+
     # Create a node that holds the current iterated node
-    currentNode = startNode
+    allNodes.put(startNode, startNode.f)
 
-    index = 0
+    # Data Stats
+    iterations = 0
+    numberOfNodes = 1
+
     # Loop until the heuristics of a node reach 0 thus deliver the desired result
-    while currentNode.h > 0:
+    while not allNodes.empty():
 
-        index += 1
+        # Get current node of priority queue
+        currentNode = allNodes.get()
 
+        # Check for repetition
+        if currentNode.puzzleField in visitedNodes:
+            continue
+
+        # Stop the loop when heuristic od current node reaches 0
+        if currentNode.h == 0:
+            break
+
+        # Add puzzle field of current node to visited nodes
+        visitedNodes.append(currentNode.puzzleField)
+
+        # Print current node stats
+        iterations += 1
         print("Searching: g-cost = " + str(currentNode.g) + " | h-cost = " + str(currentNode.h) + " | f-cost = " + str(currentNode.f))
-        # nodeCreator.printNode(currentNode)
+
         # Create child nodes of the current node
         childNodes = nodeCreator.createChildNodes(currentNode)
 
         # Add the child nodes to the list with all Nodes
         for node in childNodes:
             allNodes.put(node, node.f)
-
-        # Sort array with all nodes by their cost f(n)
-        # allNodes.sort(key=lambda x: x.f)
-
-        # Pick the next node with the least cost that hasn't been visited yet
-        currentNode = allNodes.get()
+            numberOfNodes += 1
 
     # Print path of all nodes to solve the puzzle
-    print("\nFinished Puzzle: g-cost/depth = " + str(currentNode.g) + " | total iterations: " + str(index) + "\n")
-    nodeCreator.printAllNodes(currentNode)
+    print("\nFinished Puzzle: g-cost/depth = " + str(currentNode.g) +
+          " | total iterations = " + str(iterations) +
+          " | number of nodes = " + str(numberOfNodes) + "\n")
+
+    return currentNode
 
 
 if __name__ == '__main__':
     startNode = nodeCreator.Node()
     startNode.puzzleField[0][0] = 2
-    startNode.puzzleField[0][1] = 0
-    startNode.puzzleField[0][2] = 5
+    startNode.puzzleField[0][1] = 6
+    startNode.puzzleField[0][2] = 0
     startNode.puzzleField[1][0] = 1
     startNode.puzzleField[1][1] = 8
     startNode.puzzleField[1][2] = 7
     startNode.puzzleField[2][0] = 3
-    startNode.puzzleField[2][1] = 6
-    startNode.puzzleField[2][2] = 4
+    startNode.puzzleField[2][1] = 4
+    startNode.puzzleField[2][2] = 5
 
     startNode.heuristicApproach = 1
     nodeCreator.calculateManhatten(startNode)
 
     # solveSpecificPuzzle(startNode)
     solveRandomPuzzle()
-    #testNode = nodeCreator.Node()
-    #testNode.puzzleField = copy.deepcopy(startNode.puzzleField)
-
-    #print(comparePuzzles(testNode, startNode))
-
-    # n1 = nodeCreator.createShuffledParentNode(1)
-    # n2 = nodeCreator.createShuffledParentNode(1)
-    # n3 = nodeCreator.createShuffledParentNode(1)
-    # n4 = nodeCreator.createShuffledParentNode(1)
-    # n5 = nodeCreator.createShuffledParentNode(1)
-    # n6 = nodeCreator.createShuffledParentNode(1)
-
-    # print(n1.h)
-    # print(n2.h)
-    # print(n3.h)
-    # print(n4.h)
-    # print(n5.h)
-    # print(n6.h)
-
-    # q = nodeCreator.NodePriorityQueue()
-
-    # q.put(n1, n1.h)
-    # q.put(n2, n2.h)
-    # q.put(n3, n3.h)
-
-    # print("Dequeued Node:")
-    # nodeX = q.get()
-    # print(nodeX.h)
 
 
 

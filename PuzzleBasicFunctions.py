@@ -2,10 +2,11 @@ import math
 import copy
 import numpy as np
 from queue import PriorityQueue
+import random
 
 # A node class that contains the state of a puzzle field and its current cost
 class Node():
-    puzzleField = np.arange(9).reshape(3, 3)
+    puzzleField = [[0, 1, 2], [3, 4, 5], [6, 7, 8]]
     g = 0
     h = 0
     f = 0
@@ -30,9 +31,9 @@ class NodePriorityQueue(PriorityQueue):
 
 
 # Counts the amount of inversion in the node version 2
-def checkInversionCount2(node):
+def checkInversionCount2(puzzleField):
     count = 0
-    arr = node.flatten()
+    arr = [j for sub in puzzleField for j in sub]
 
     for x in range(len(arr) - 1):
         for i in range(x, len(arr)):
@@ -85,11 +86,11 @@ def createShuffledParentNode(heuristicApproach):
     node = Node()
 
     # Create random 2d puzzle field
-    randomPuzzle = np.arange(9)
-    np.random.shuffle(randomPuzzle)
-    node.puzzleField = np.reshape(randomPuzzle, (3, 3))
+    random.shuffle(node.puzzleField)
+    for i in node.puzzleField:
+        random.shuffle(i)
 
-    # Define approach of heuristics and retr
+    # Define approach of heuristics
     node.heuristicApproach = heuristicApproach
 
     # Return manhatten approach
@@ -106,7 +107,16 @@ def createShuffledParentNode(heuristicApproach):
 def createChildFromParent(parentNode, xParent, yParent, xValue, yValue):
     # Create a copy
     node = Node()
-    node.puzzleField = copy.deepcopy(parentNode.puzzleField)
+    puzzleField = parentNode.puzzleField
+    node.puzzleField = copy.deepcopy(puzzleField)
+
+    # Swap empty value in the puzzle field
+    node.puzzleField[xParent][yParent] = node.puzzleField[xParent + xValue][yParent + yValue]
+    node.puzzleField[xParent + xValue][yParent + yValue] = 0
+
+    # Check if node is not a copy of a parent node to prevent loops
+    if checkLoops(node) == 0:
+        return 0
 
     # Increase tree depth cost
     node.g = copy.deepcopy(parentNode.g) + 1
@@ -114,10 +124,6 @@ def createChildFromParent(parentNode, xParent, yParent, xValue, yValue):
 
     # Define parent node
     node.parentNode = parentNode
-
-    # Swap empty value in the puzzle field
-    node.puzzleField[xParent][yParent] = node.puzzleField[xParent + xValue][yParent + yValue]
-    node.puzzleField[xParent + xValue][yParent + yValue] = 0
 
     # Return manhatten approach
     if node.heuristicApproach == 1:
@@ -148,19 +154,23 @@ def createChildNodes(parentNode):
     # Find the neighbors of the empty value in the puzzle field and create new child nodes
     if yAxis - 1 >= 0:  # left
         childNodeBottom = createChildFromParent(parentNode, xAxis, yAxis, 0, -1)
-        childNodes.append(childNodeBottom)
+        if childNodeBottom != 0:
+            childNodes.append(childNodeBottom)
 
     if xAxis - 1 >= 0:  # top
         childNodeLeft = createChildFromParent(parentNode, xAxis, yAxis, -1, 0)
-        childNodes.append(childNodeLeft)
+        if childNodeLeft != 0:
+            childNodes.append(childNodeLeft)
 
     if yAxis + 1 < 3:  # right
         childNodeTop = createChildFromParent(parentNode, xAxis, yAxis, 0, 1)
-        childNodes.append(childNodeTop)
+        if childNodeTop != 0:
+            childNodes.append(childNodeTop)
 
     if xAxis + 1 < 3:  # bottom
         childNodeRight = createChildFromParent(parentNode, xAxis, yAxis, 1, 0)
-        childNodes.append(childNodeRight)
+        if childNodeRight != 0:
+            childNodes.append(childNodeRight)
 
     # Return child nodes
     return childNodes
@@ -203,14 +213,10 @@ def comparePuzzles(node1, node2):
     return 1
 
 
-def checkLoops():
-    childNodesTest = []
-    childNodes = []
-    # Prevent infinite loops
-    for node in childNodesTest:
-        parentNode = node.parentNode
-
-        while parentNode != 0:
-            if comparePuzzles(node, parentNode) == 0:
-                childNodes.append(node)
-            parentNode = parentNode.parentNode
+def checkLoops(node):
+    parentNode = node.parentNode
+    while parentNode != 0:
+        if comparePuzzles(node, parentNode) == 1:
+            return 0
+        parentNode = parentNode.parentNode
+    return 1
