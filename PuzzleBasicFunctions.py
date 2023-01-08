@@ -1,32 +1,35 @@
 import math
 import copy
 import numpy as np
-
+from queue import PriorityQueue
 
 # A node class that contains the state of a puzzle field and its current cost
-class Node:
+class Node():
     puzzleField = np.arange(9).reshape(3, 3)
     g = 0
     h = 0
     f = 0
     parentNode = 0
     heuristicApproach = 0  # 0 = hamming, 1 = manhatten
-    hasBeenVisited = 0  # 0 = no, 1 = yes
 
 
-# Counts the amount of inversion in the node
-def checkInversionCount(node):
-    count = 0
-    empty = 0
-    arr = node.flatten()
+# Create a priority queue for node objects
+class NodePriorityQueue(PriorityQueue):
 
-    for x in arr - 1:
-        if arr[x] > arr[x + 1] and arr[x] != empty:
-            count += 1
-    print(count)
-    return count
+    def __init__(self):
+        PriorityQueue.__init__(self)
+        self.counter = 0
+
+    def put(self, item, priority):
+        PriorityQueue.put(self, (priority, self.counter, item))
+        self.counter += 1
+
+    def get(self, *args, **kwargs):
+        _, _, item = PriorityQueue.get(self, *args, **kwargs)
+        return item
 
 
+# Counts the amount of inversion in the node version 2
 def checkInversionCount2(node):
     count = 0
     arr = node.flatten()
@@ -35,7 +38,7 @@ def checkInversionCount2(node):
         for i in range(x, len(arr)):
             if arr[x] > arr[i] != 0:
                 count += 1
-    print(count)
+    print("Inversion Count: " + str(count))
     return count
 
 
@@ -43,7 +46,7 @@ def checkInversionCount2(node):
 def checkIfSolvable(node):
     count = checkInversionCount2(node.puzzleField)
     if count % 2 == 0:
-        print("This node is solvable!")
+        print("This node is solvable! \n")
         return 1
     else:
         print("This node is not solvable!")
@@ -159,9 +162,6 @@ def createChildNodes(parentNode):
         childNodeRight = createChildFromParent(parentNode, xAxis, yAxis, 1, 0)
         childNodes.append(childNodeRight)
 
-    # Make sure parent node cannot be visited anymore
-    parentNode.hasBeenVisited = 1
-
     # Return child nodes
     return childNodes
 
@@ -193,3 +193,24 @@ def printAllNodes(endNode):
     for i in range(len(nodePath)):
         print("Step: " + str(i + 1))
         printNode(nodePath[i])
+
+
+def comparePuzzles(node1, node2):
+    for x in range(3):
+        for y in range(3):
+            if node1.puzzleField[x][y] != node2.puzzleField[x][y]:
+                return 0
+    return 1
+
+
+def checkLoops():
+    childNodesTest = []
+    childNodes = []
+    # Prevent infinite loops
+    for node in childNodesTest:
+        parentNode = node.parentNode
+
+        while parentNode != 0:
+            if comparePuzzles(node, parentNode) == 0:
+                childNodes.append(node)
+            parentNode = parentNode.parentNode
