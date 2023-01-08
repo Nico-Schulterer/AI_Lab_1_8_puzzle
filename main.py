@@ -1,20 +1,28 @@
+import copy
+import time
 import PuzzleBasicFunctions as nodeCreator
 
 
-def solveRandomPuzzle():
+def solveRandomPuzzle(heuristicApproach):
 
     # Create a random start node
-    startNode = nodeCreator.createShuffledParentNode(1)
+    startNode = nodeCreator.createShuffledParentNode(heuristicApproach)
 
     # Solve node
     return solveSpecificPuzzle(startNode)
 
 
 def solveSpecificPuzzle(startNode):
+    nodeCreator.printNode(startNode)
+
+    # Data Stats
+    computationTime = time.time()
+    iterations = 0
+    numberOfNodes = 1
 
     # Check if solvable otherwise stop immediately
     if nodeCreator.checkIfSolvable(startNode) == 0:
-        return
+        return 0, 0, 0
 
     # Create a priority queue for all created nodes
     allNodes = nodeCreator.NodePriorityQueue()
@@ -24,10 +32,6 @@ def solveSpecificPuzzle(startNode):
 
     # Create a node that holds the current iterated node
     allNodes.put(startNode, startNode.f)
-
-    # Data Stats
-    iterations = 0
-    numberOfNodes = 1
 
     # Loop until the heuristics of a node reach 0 thus deliver the desired result
     while not allNodes.empty():
@@ -63,26 +67,67 @@ def solveSpecificPuzzle(startNode):
           " | total iterations = " + str(iterations) +
           " | number of nodes = " + str(numberOfNodes) + "\n")
 
-    return currentNode
+    # Data Stats
+    computationTime = time.time() - computationTime
+
+    return currentNode, computationTime, numberOfNodes
+
+
+def compareHeuristics():
+    # Manhatten
+    manhattenNodes = 0
+    manhattenTime = 0
+
+    # Hamming
+    hammingNodes = 0
+    hammingTime = 0
+
+    # Search 100 times
+    for i in range(10):
+
+        startNode = nodeCreator.createShuffledParentNode(0)
+
+        endNode, time, nodes = solveSpecificPuzzle(startNode)
+        manhattenTime += time
+        manhattenNodes += nodes
+
+        startNode.heuristicApproach = 0
+        nodeCreator.calculateHamming(startNode)
+        endNode, time, nodes = solveSpecificPuzzle(startNode)
+        hammingTime += time
+        hammingNodes += nodes
+
+
+    # Print data
+    print("\nManhatten Heuristic for 100 searches: time = " + str(manhattenTime) + " nodes = " + str(manhattenNodes))
+    print("\nHamming Heuristic for 100 searches: time = " + str(hammingTime) + " nodes = " + str(hammingNodes))
 
 
 if __name__ == '__main__':
+
+    # Solve specific puzzle
+    """
     startNode = nodeCreator.Node()
-    startNode.puzzleField[0][0] = 2
-    startNode.puzzleField[0][1] = 6
-    startNode.puzzleField[0][2] = 0
-    startNode.puzzleField[1][0] = 1
-    startNode.puzzleField[1][1] = 8
-    startNode.puzzleField[1][2] = 7
-    startNode.puzzleField[2][0] = 3
-    startNode.puzzleField[2][1] = 4
-    startNode.puzzleField[2][2] = 5
-
+    startNode.puzzleField = [[2, 6, 0], [1, 8, 7], [3, 4, 5]]
     startNode.heuristicApproach = 1
-    nodeCreator.calculateManhatten(startNode)
+    endNode, time, nodes = solveSpecificPuzzle(startNode)
+    nodeCreator.printAllNodes(endNode)
+    print("Computation Time: " + str(time))
+    print("Number of nodes: " + str(nodes))
+    
+    endNode, time, nodes = solveRandomPuzzle()
+    nodeCreator.printAllNodes(endNode)
+    print(time)
+    print(nodes)
+    """
 
-    # solveSpecificPuzzle(startNode)
-    solveRandomPuzzle()
+    # Solve random puzzle
+    endNode, time, nodes = solveRandomPuzzle(1)
+    nodeCreator.printAllNodes(endNode)
+    print("Computation Time: " + str(time))
+    print("Number of Nodes: " + str(nodes))
 
-
-
+    # Compare heuristics
+    """
+    # compareHeuristics()
+    """

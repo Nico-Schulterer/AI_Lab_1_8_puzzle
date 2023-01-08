@@ -1,6 +1,5 @@
 import math
 import copy
-import numpy as np
 from queue import PriorityQueue
 import random
 
@@ -82,25 +81,31 @@ def calculateManhatten(node):
 
 # Returns a new random shuffled node
 def createShuffledParentNode(heuristicApproach):
-    # Create new node
-    node = Node()
 
-    # Create random 2d puzzle field
-    random.shuffle(node.puzzleField)
-    for i in node.puzzleField:
-        random.shuffle(i)
+    while True:
+        # Create new node
+        nodeX = Node()
+
+        # Create random 2d puzzle field
+        random.shuffle(nodeX.puzzleField)
+        for i in nodeX.puzzleField:
+            random.shuffle(i)
+
+        # Check solvability
+        if checkIfSolvable(nodeX) == 1:
+            break
 
     # Define approach of heuristics
-    node.heuristicApproach = heuristicApproach
+    nodeX.heuristicApproach = heuristicApproach
 
     # Return manhatten approach
-    if node.heuristicApproach == 1:
-        calculateManhatten(node)
-        return node
+    if nodeX.heuristicApproach == 1:
+        calculateManhatten(nodeX)
+        return nodeX
 
     # Return default (hamming) approach
-    calculateHamming(node)
-    return node
+    calculateHamming(nodeX)
+    return nodeX
 
 
 # Returns a new copy of an existing node and changes its puzzle field
